@@ -1,0 +1,41 @@
+{
+  "limiar_negocio": 0.3199999928474426,
+  "num_cols": [
+    "vintage",
+    "age",
+    "dependents",
+    "current_balance",
+    "previous_month_end_balance",
+    "average_monthly_balance_prevQ",
+    "average_monthly_balance_prevQ2",
+    "current_month_credit",
+    "previous_month_credit",
+    "current_month_debit",
+    "previous_month_debit",
+    "current_month_balance",
+    "previous_month_balance",
+    "saldo_negativo",
+    "queda_saldo",
+    "sem_transacao_recente"
+  ],
+  "cat_cols": [
+    "gender",
+    "occupation",
+    "customer_nw_category"
+  ],
+  "hiperparametros": {
+    "model__subsample": 0.6,
+    "model__n_estimators": 300,
+    "model__min_child_weight": 5,
+    "model__max_depth": 8,
+    "model__learning_rate": 0.05,
+    "model__gamma": 0.1,
+    "model__colsample_bytree": 0.6
+  },
+  "metricas_teste": {
+    "recall": 0.75,
+    "precision": 0.4643908181283108,
+    "f1": 0.5736095965103599,
+    "roc_auc": 0.8384127016750591
+  }
+}
