@@ -2,9 +2,11 @@
 
 Modelo preditivo e dashboard interativo para identificar clientes de um banco com risco de cancelamento (churn) e estimar o impacto em receita.
 
-> ⚠️ \\\\\\\\\\\\\\\*\\\\\\\\\\\\\\\*Nota sobre a moeda:\\\\\\\\\\\\\\\*\\\\\\\\\\\\\\\* o dataset não declara oficialmente a unidade monetária dos campos de saldo. Pela origem provável dos dados (estrutura de colunas típica de um desafio de banco indiano), os valores provavelmente estão em Rupias Indianas (INR) — por isso, todos os valores neste projeto aparecem sem símbolo de moeda.
+🔗 **[Acesse o dashboard ao vivo](https://bank-churn-prediction-dashboard-2azfey4fpwgbqutgvc8hx8.streamlit.app)**
 
-\---
+> ⚠️ **Nota sobre a moeda:** o dataset não declara oficialmente a unidade monetária dos campos de saldo. Pela origem provável dos dados (estrutura de colunas típica de um desafio de banco indiano), os valores provavelmente estão em Rupias Indianas (INR) — por isso, todos os valores neste projeto aparecem sem símbolo de moeda.
+
+---
 
 ## Contexto de Negócio
 
@@ -28,13 +30,13 @@ O banco enfrenta uma taxa de churn de **18,5%** — bem acima do que é consider
 |Qual o sinal mais forte?|Queda de saldo no trimestre — quem cancela esvazia a conta antes de sair|
 |Onde priorizar a retenção?|Cruzar clientes de alto saldo (top 10%) com sinal de queda de saldo|
 
-\---
+---
 
 ## Estrutura do Repositório
 
 ```
 bank-churn-prediction-dashboard/
-├──assets/
+├── assets/
 │   ├── tela-inicial.png
 │   ├── eda.png
 │   └── simulador-churn.png
@@ -42,11 +44,11 @@ bank-churn-prediction-dashboard/
 │   ├── raw/                    # Dataset original (nunca editado)
 │   └── processed/              # Dataset tratado, pronto para análise/modelagem
 ├── notebooks/
-│   ├── 01\\\\\\\\\\\\\\\_data\\\\\\\\\\\\\\\_cleaning.ipynb      # Tratamento de dados: ausentes, outliers, tipos
-│   ├── 02\\\\\\\\\\\\\\\_eda\\\\\\\\\\\\\\\_negocio.ipynb        # Análise exploratória orientada a negócio
-│   └── 03\\\\\\\\\\\\\\\_modelagem.ipynb          # Comparação de modelos, tuning, impacto de negócio
+│   ├── 01_data_cleaning.ipynb      # Tratamento de dados: ausentes, outliers, tipos
+│   ├── 02_eda_negocio.ipynb        # Análise exploratória orientada a negócio
+│   └── 03_modelagem.ipynb          # Comparação de modelos, tuning, impacto de negócio
 ├── models/
-│   ├── modelo\\\\\\\\\\\\\\\_churn\\\\\\\\\\\\\\\_xgboost.pkl    # Modelo final treinado
+│   ├── modelo_churn_xgboost.pkl    # Modelo final treinado
 │   └── metadata.json               # Limiar de decisão e métricas do modelo
 ├── src/
 │   └── app.py                      # Dashboard Streamlit (Análise + Simulador)
@@ -58,25 +60,25 @@ bank-churn-prediction-dashboard/
 
 **Fonte:** [Bank Customer Churn Data](https://www.kaggle.com/datasets/pentakrishnakishore/bank-customer-churn-data) (Kaggle, por Penta Krishna Kishore) — 28.382 clientes, 21 colunas.
 
-**Principais decisões de tratamento** (detalhadas em `01\\\\\\\\\\\\\\\_data\\\\\\\\\\\\\\\_cleaning.ipynb`):
+**Principais decisões de tratamento** (detalhadas em `01_data_cleaning.ipynb`):
 
 * Valores ausentes em `dependents`, `city`, `gender` e `occupation` tratados individualmente, com decisão justificada para cada coluna (mediana, categoria própria, ou moda, conforme o caso)
 * Outliers em `dependents` (valores como 52) tratados como erro de cadastro
-* \~800 clientes com menos de 18 anos **mantidos intencionalmente** — provável conta de menor, comum no mercado bancário indiano
-* Saldo negativo transformado em uma feature própria (`saldo\\\\\\\\\\\\\\\_negativo`) em vez de removido, por ser um sinal potencialmente relevante
+* ~800 clientes com menos de 18 anos **mantidos intencionalmente** — provável conta de menor, comum no mercado bancário indiano
+* Saldo negativo transformado em uma feature própria (`saldo_negativo`) em vez de removido, por ser um sinal potencialmente relevante
 
 ## Principais Insights (EDA de Negócio)
 
-Detalhados em `02\\\\\\\\\\\\\\\_eda\\\\\\\\\\\\\\\_negocio.ipynb`:
+Detalhados em `02_eda_negocio.ipynb`:
 
-* **O sinal mais forte não é quem o cliente é, é o que ele está fazendo com o dinheiro.** Clientes que cancelam tinham saldo médio *maior* no trimestre anterior, mas *esvaziaram* a conta antes de sair (queda média de 3.322, contra uma leve alta de 613 entre quem ficou) — essa feature (`queda\\\\\\\\\\\\\\\_saldo`) se mostrou o preditor mais poderoso do projeto.
+* **O sinal mais forte não é quem o cliente é, é o que ele está fazendo com o dinheiro.** Clientes que cancelam tinham saldo médio *maior* no trimestre anterior, mas *esvaziaram* a conta antes de sair (queda média de 3.322, contra uma leve alta de 613 entre quem ficou) — essa feature (`queda_saldo`) se mostrou o preditor mais poderoso do projeto.
 * **Ocupação é um sinal de negócio válido:** autônomos cancelam quase 2x mais que funcionários de empresa.
 * **Uma hipótese testada e descartada:** esperava-se que a ausência de transação recente indicasse maior risco — o oposto se confirmou. Reportado com transparência, não escondido.
 * **Perfil demográfico (idade, tempo de relacionamento, dependentes) não diferencia quem cancela** — reforça que comportamento financeiro > características fixas do cliente.
 
 ## Modelagem
 
-Detalhado em `03\\\\\\\\\\\\\\\_modelagem.ipynb`. Três modelos comparados com parâmetros padrão:
+Detalhado em `03_modelagem.ipynb`. Três modelos comparados com parâmetros padrão:
 
 |Modelo|Recall|Precision|F1-Score|ROC-AUC|
 |-|-|-|-|-|
@@ -86,11 +88,11 @@ Detalhado em `03\\\\\\\\\\\\\\\_modelagem.ipynb`. Três modelos comparados com p
 
 **XGBoost foi escolhido** pelo melhor equilíbrio entre recall e precisão, e depois otimizado com `RandomizedSearchCV` (5-fold cross-validation), elevando o F1-Score para **0,608** e o ROC-AUC para **0,836**.
 
-**Ajuste de limiar orientado a negócio:** o limiar de decisão foi calibrado para capturar \~75% dos clientes que realmente cancelam (recall priorizado sobre acurácia, já que deixar passar um cliente que vai cancelar custa mais caro que uma ligação de retenção desnecessária).
+**Ajuste de limiar orientado a negócio:** o limiar de decisão foi calibrado para capturar ~75% dos clientes que realmente cancelam (recall priorizado sobre acurácia, já que deixar passar um cliente que vai cancelar custa mais caro que uma ligação de retenção desnecessária).
 
-**Impacto de negócio:** nesse limiar, o modelo sinaliza 1.728 clientes (30% da base de teste) e captura \~45% de todo o saldo em risco de cancelamento — uma redução de 15% no número de clientes que a equipe de retenção precisa contatar, comparado à versão sem tuning, para o mesmo recall.
+**Impacto de negócio:** nesse limiar, o modelo sinaliza 1.728 clientes (30% da base de teste) e captura ~45% de todo o saldo em risco de cancelamento — uma redução de 15% no número de clientes que a equipe de retenção precisa contatar, comparado à versão sem tuning, para o mesmo recall.
 
-**Limitação conhecida:** o teto de \~0,84 de ROC-AUC provavelmente reflete o limite real dos dados disponíveis — não há informação sobre motivo de cancelamento, satisfação do cliente, ou histórico além de um trimestre.
+**Limitação conhecida:** o teto de ~0,84 de ROC-AUC provavelmente reflete o limite real dos dados disponíveis — não há informação sobre motivo de cancelamento, satisfação do cliente, ou histórico além de um trimestre.
 
 ## Dashboard
 
@@ -101,11 +103,11 @@ Construído em Streamlit, com duas abas:
 
 ### Screenshots
 
-!\[Tela inicial](./assets/tela-inicial.png)
+![Tela inicial](./assets/tela-inicial.png)
 
-!\[Aba Análise do dashboard, mostrando os gráficos de taxa de churn por ocupação e de queda de saldo entre clientes ativos e cancelados](./assets/eda.png)
+![Aba Análise do dashboard, mostrando os gráficos de taxa de churn por ocupação e de queda de saldo entre clientes ativos e cancelados](./assets/eda.png)
 
-!\[Aba Simulador do dashboard, mostrando o formulário com os campos principais (idade, ocupação, saldo atual, saldo médio do trimestre anterior) e o resultado da previsão com a probabilidade de churn e a classificação de risco](./assets/simulador-churn.png)
+![Aba Simulador do dashboard, mostrando o formulário com os campos principais (idade, ocupação, saldo atual, saldo médio do trimestre anterior) e o resultado da previsão com a probabilidade de churn e a classificação de risco](./assets/simulador-churn.png)
 
 
 
@@ -126,7 +128,7 @@ O dashboard abre automaticamente em `http://localhost:8501`.
 
 * **Moeda não confirmada:** valores tratados sem símbolo monetário até confirmação da fonte oficial dos dados
 * **Sem dado de motivo de cancelamento:** o modelo prevê *que* o cliente vai cancelar, não *por quê* além do que os dados financeiros revelam
-* **Próximo passo natural:** publicar o dashboard no Streamlit Community Cloud para gerar um link público compartilhável
+* **Próximo passo natural:** incorporar dado de satisfação/motivo de contato do cliente, se disponível, para complementar o sinal puramente financeiro
 
 
 
@@ -134,7 +136,7 @@ O dashboard abre automaticamente em `http://localhost:8501`.
 
 `Python` · `Pandas` · `NumPy` · `Scikit-learn` · `XGBoost` · `Matplotlib` · `Seaborn` · `Streamlit` · `Jupyter Notebook`
 
-\---
+---
 
 **Autora:** TalitaLuci
 
