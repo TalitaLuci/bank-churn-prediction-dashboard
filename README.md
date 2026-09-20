@@ -4,6 +4,8 @@ Modelo preditivo e dashboard interativo para identificar clientes de um banco co
 
 🔗 **[Acesse o dashboard ao vivo](https://bank-churn-prediction-dashboard-2azfey4fpwgbqutgvc8hx8.streamlit.app)**
 
+![Tela inicial do dashboard de previsão de churn bancário](./assets/tela-inicial.png)
+
 > ⚠️ **Nota sobre a moeda:** o dataset não declara oficialmente a unidade monetária dos campos de saldo. Pela origem provável dos dados (estrutura de colunas típica de um desafio de banco indiano), os valores provavelmente estão em Rupias Indianas (INR) — por isso, todos os valores neste projeto aparecem sem símbolo de moeda.
 
 ---
@@ -71,6 +73,8 @@ bank-churn-prediction-dashboard/
 
 Detalhados em `02_eda_negocio.ipynb`:
 
+![Aba Análise do dashboard, mostrando os gráficos de taxa de churn por ocupação e de queda de saldo entre clientes ativos e cancelados](./assets/eda.png)
+
 * **O sinal mais forte não é quem o cliente é, é o que ele está fazendo com o dinheiro.** Clientes que cancelam tinham saldo médio *maior* no trimestre anterior, mas *esvaziaram* a conta antes de sair (queda média de 3.322, contra uma leve alta de 613 entre quem ficou) — essa feature (`queda_saldo`) se mostrou o preditor mais poderoso do projeto.
 * **Ocupação é um sinal de negócio válido:** autônomos cancelam quase 2x mais que funcionários de empresa.
 * **Uma hipótese testada e descartada:** esperava-se que a ausência de transação recente indicasse maior risco — o oposto se confirmou. Reportado com transparência, não escondido.
@@ -101,15 +105,7 @@ Construído em Streamlit, com duas abas:
 * **📊 Análise** — os principais achados da EDA de negócio, com gráficos interativos e filtro por ocupação
 * **🔮 Simulador** — formulário que recebe dados de um cliente (real ou hipotético) e retorna a probabilidade de churn em tempo real, usando o modelo treinado
 
-### Screenshots
-
-![Tela inicial](./assets/tela-inicial.png)
-
-![Aba Análise do dashboard, mostrando os gráficos de taxa de churn por ocupação e de queda de saldo entre clientes ativos e cancelados](./assets/eda.png)
-
 ![Aba Simulador do dashboard, mostrando o formulário com os campos principais (idade, ocupação, saldo atual, saldo médio do trimestre anterior) e o resultado da previsão com a probabilidade de churn e a classificação de risco](./assets/simulador-churn.png)
-
-
 
 ### Como rodar
 
