@@ -2,15 +2,33 @@
 
 Modelo preditivo e dashboard interativo para identificar clientes de um banco com risco de cancelamento (churn) e estimar o impacto em receita.
 
+[![Python](https://img.shields.io/badge/Python-3.11+-blue)]()
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-red)]()
+[![XGBoost](https://img.shields.io/badge/XGBoost-Model-green)]()
+[![License](https://img.shields.io/badge/License-MIT-lightgrey)]()
+
 🔗 **[Acesse o dashboard ao vivo](https://bank-churn-prediction-dashboard-2azfey4fpwgbqutgvc8hx8.streamlit.app)**
 
 ![Tela inicial do dashboard de previsão de churn bancário](./assets/tela-inicial.png)
 
-> ⚠️ **Nota sobre a moeda:** o dataset não declara oficialmente a unidade monetária dos campos de saldo. Pela origem provável dos dados (estrutura de colunas típica de um desafio de banco indiano), os valores provavelmente estão em Rupias Indianas (INR) — por isso, todos os valores neste projeto aparecem sem símbolo de moeda.
+---
+
+## 📌 Sumário
+
+- [Contexto de negócio](#-contexto-de-negócio)
+- [Visualização dos resultados](#-visualização-dos-resultados)
+- [Coleta de dados](#-coleta-de-dados)
+- [Modelagem](#-modelagem)
+- [Conclusões](#-conclusões)
+- [Dashboard](#-dashboard)
+- [Como executar](#-como-executar)
+- [Estrutura do projeto](#-estrutura-do-projeto)
+- [Tecnologias](#-tecnologias)
+- [Autor](#-autor)
 
 ---
 
-## Contexto de Negócio
+## 🎯 Contexto de negócio
 
 O banco enfrenta uma taxa de churn de **18,5%** — bem acima do que é considerado saudável no setor bancário. Isso já custou **13,1% de todo o saldo administrado na base** em contas que cancelaram. O objetivo deste projeto é identificar, antes do cancelamento acontecer, quais clientes estão em risco, para que a equipe de retenção possa agir a tempo.
 
@@ -120,19 +138,31 @@ O dashboard abre automaticamente em `http://localhost:8501`.
 
 
 
-## Limitações e Próximos Passos
+## Observações
 
 * **Moeda não confirmada:** valores tratados sem símbolo monetário até confirmação da fonte oficial dos dados
 * **Sem dado de motivo de cancelamento:** o modelo prevê *que* o cliente vai cancelar, não *por quê* além do que os dados financeiros revelam
 * **Próximo passo natural:** incorporar dado de satisfação/motivo de contato do cliente, se disponível, para complementar o sinal puramente financeiro
 
 
+---
 
-## Ferramentas
+## 🛠 Tecnologias
 
-`Python` · `Pandas` · `NumPy` · `Scikit-learn` · `XGBoost` · `Matplotlib` · `Seaborn` · `Streamlit` · `Jupyter Notebook`
+- **Linguagem:** Python 3.11+
+- **Análise:** pandas, numpy
+- **Visualização:** matplotlib, seaborn, plotly
+- **Machine Learning:** scikit-learn, XGBoost
+- **Dashboard:** Streamlit
+- **Serialização:** joblib
 
 ---
 
-**Autora:** TalitaLuci
+
+## 👩‍💻 Autora
+
+**Talita Luci**
+
+[![GitHub](https://img.shields.io/badge/GitHub-TalitaLuci-black)](https://github.com/TalitaLuci)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-[preencher]-blue)](https://www.linkedin.com/in/talita-luci)
 
