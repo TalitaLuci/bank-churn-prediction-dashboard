@@ -164,5 +164,5 @@ O dashboard abre automaticamente em `http://localhost:8501`.
 **Talita Luci**
 
 [![GitHub](https://img.shields.io/badge/GitHub-TalitaLuci-black)](https://github.com/TalitaLuci)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-[preencher]-blue)](https://www.linkedin.com/in/talita-luci)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-TalitaLuci-blue)](https://www.linkedin.com/in/talita-luci)
 
