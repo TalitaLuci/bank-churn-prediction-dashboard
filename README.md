@@ -15,22 +15,25 @@ Modelo preditivo e dashboard interativo para identificar clientes de um banco co
 
 ## 📌 Sumário
 
-- [Contexto de negócio](#-contexto-de-negócio)
-- [Visualização dos resultados](#-visualização-dos-resultados)
+- [Problema de negócio](#-problema-de-negócio)
 - [Coleta de dados](#-coleta-de-dados)
+- [Análise exploratória](#-análise-exploratória)
 - [Modelagem](#-modelagem)
+- [Visualização dos resultados](#-visualização-dos-resultados)
 - [Conclusões](#-conclusões)
 - [Dashboard](#-dashboard)
 - [Como executar](#-como-executar)
 - [Estrutura do projeto](#-estrutura-do-projeto)
 - [Tecnologias](#-tecnologias)
-- [Autor](#-autor)
+- [Autora](#-autora)
 
 ---
 
-## 🎯 Contexto de negócio
+## 🎯 Problema de negócio
 
-O banco enfrenta uma taxa de churn de **18,5%** — bem acima do que é considerado saudável no setor bancário. Isso já custou **13,1% de todo o saldo administrado na base** em contas que cancelaram. O objetivo deste projeto é identificar, antes do cancelamento acontecer, quais clientes estão em risco, para que a equipe de retenção possa agir a tempo.
+A base analisada apresenta uma taxa de churn de **18,5%**. O objetivo deste projeto é identificar, antes do cancelamento acontecer, quais clientes estão em risco, para apoiar a priorização das ações de retenção.
+
+> **Importante:** os percentuais apresentados neste projeto descrevem a base pública utilizada. Eles não devem ser interpretados como indicadores de uma instituição bancária real nem como benchmark do setor.
 
 ## Objetivos
 
@@ -52,7 +55,7 @@ O banco enfrenta uma taxa de churn de **18,5%** — bem acima do que é consider
 
 ---
 
-## Estrutura do Repositório
+## Estrutura do projeto
 
 ```
 bank-churn-prediction-dashboard/
@@ -76,16 +79,22 @@ bank-churn-prediction-dashboard/
 └── README.md
 ```
 
-## Dados
+## Coleta de dados
 
 **Fonte:** [Bank Customer Churn Data](https://www.kaggle.com/datasets/pentakrishnakishore/bank-customer-churn-data) (Kaggle, por Penta Krishna Kishore) — 28.382 clientes, 21 colunas.
 
+A base é pública e de terceiros. Portanto, os resultados refletem as características e limitações desse dataset e não representam necessariamente o comportamento de clientes de um banco específico. A estrutura dos dados sugere relação com o mercado bancário indiano, mas a fonte utilizada não fornece contexto suficiente para confirmar a moeda dos valores monetários.
+
 **Principais decisões de tratamento** (detalhadas em `01_data_cleaning.ipynb`):
 
-* Valores ausentes em `dependents`, `city`, `gender` e `occupation` tratados individualmente, com decisão justificada para cada coluna (mediana, categoria própria, ou moda, conforme o caso)
+* Valores ausentes em `dependents`, `city`, `gender` e `occupation` tratados individualmente, com decisão justificada para cada coluna
 * Outliers em `dependents` (valores como 52) tratados como erro de cadastro
-* ~800 clientes com menos de 18 anos **mantidos intencionalmente** — provável conta de menor, comum no mercado bancário indiano
-* Saldo negativo transformado em uma feature própria (`saldo_negativo`) em vez de removido, por ser um sinal potencialmente relevante
+* ~800 clientes com menos de 18 anos **mantidos intencionalmente**, como hipótese compatível com a existência de contas de menores
+* Saldo negativo transformado em uma feature própria (`saldo_negativo`) em vez de removido, por poder representar um sinal relevante
+
+## Análise exploratória
+
+A EDA foi orientada pelas perguntas de negócio e buscou identificar padrões associados ao churn, além de testar hipóteses antes da modelagem.
 
 ## Principais Insights (EDA de Negócio)
 
@@ -100,7 +109,7 @@ Detalhados em `02_eda_negocio.ipynb`:
 
 ## Modelagem
 
-Detalhado em `03_modelagem.ipynb`. Três modelos comparados com parâmetros padrão:
+Detalhado em `03_modelagem.ipynb`. Três modelos foram comparados com parâmetros padrão:
 
 |Modelo|Recall|Precision|F1-Score|ROC-AUC|
 |-|-|-|-|-|
@@ -108,13 +117,29 @@ Detalhado em `03_modelagem.ipynb`. Três modelos comparados com parâmetros padr
 |Random Forest|0,432|0,722|0,540|0,849|
 |XGBoost|0,568|0,621|0,594|0,815|
 
-**XGBoost foi escolhido** pelo melhor equilíbrio entre recall e precisão, e depois otimizado com `RandomizedSearchCV` (5-fold cross-validation), elevando o F1-Score para **0,608** e o ROC-AUC para **0,836**.
+**Critério de seleção:** o XGBoost apresentou o maior F1-Score entre os três modelos, combinando recall e precision. O Random Forest apresentou ROC-AUC superior, mas recall menor. Como o objetivo do projeto é identificar clientes em risco mantendo equilíbrio entre encontrar churners e limitar falsos positivos, o F1-Score foi adotado como principal critério para a escolha inicial.
 
-**Ajuste de limiar orientado a negócio:** o limiar de decisão foi calibrado para capturar ~75% dos clientes que realmente cancelam (recall priorizado sobre acurácia, já que deixar passar um cliente que vai cancelar custa mais caro que uma ligação de retenção desnecessária).
+O XGBoost foi então otimizado com `RandomizedSearchCV` usando **5-fold cross-validation**. No conjunto de teste, o modelo tunado atingiu aproximadamente **F1-Score 0,606** e **ROC-AUC 0,838**.
 
-**Impacto de negócio:** nesse limiar, o modelo sinaliza 1.728 clientes (30% da base de teste) e captura ~45% de todo o saldo em risco de cancelamento — uma redução de 15% no número de clientes que a equipe de retenção precisa contatar, comparado à versão sem tuning, para o mesmo recall.
+> **Prevenção de data leakage:** `queda_saldo` é calculada como `average_monthly_balance_prevQ - current_balance`. Neste projeto, ela é tratada como informação disponível antes do evento de churn. Como a documentação pública da base não descreve completamente a janela temporal de cada variável, essa premissa deve ser validada com a definição original dos dados antes de uma aplicação real.
 
-**Limitação conhecida:** o teto de ~0,84 de ROC-AUC provavelmente reflete o limite real dos dados disponíveis — não há informação sobre motivo de cancelamento, satisfação do cliente, ou histórico além de um trimestre.
+**Ajuste de limiar orientado a negócio:** o limiar foi calibrado para atingir aproximadamente **75% de recall**. Na ausência de custos reais de retenção e de perda de clientes no dataset, essa escolha representa uma premissa de negócio: priorizar a identificação de churners, aceitando mais falsos positivos.
+
+**Impacto no conjunto de teste:** na execução registrada no notebook, o modelo sinaliza **1.699 clientes (29,9% da base de teste)** e identifica corretamente **55,5% do saldo associado aos clientes que efetivamente cancelaram**. Esse resultado é retrospectivo e não representa economia financeira, receita preservada ou ROI.
+
+**Limitações:** o dataset não informa motivo de cancelamento, satisfação do cliente ou histórico além de um trimestre. Antes de uma aplicação real, seria necessário validar a disponibilidade temporal das variáveis, utilizar dados históricos reais da instituição e incorporar informações adicionais, se disponíveis.
+
+## Visualização dos resultados
+
+A comunicação dos resultados segue a sequência **problema → sinais encontrados → capacidade preditiva → priorização de ações**. O dashboard transforma os principais achados da EDA e o modelo em uma interface explorável, enquanto os notebooks preservam a análise técnica e a rastreabilidade.
+
+## Conclusões
+
+A análise indica que o comportamento financeiro, especialmente a queda de saldo, contém mais informação para a previsão de churn do que características demográficas isoladas. O XGBoost tunado apresentou F1-Score de aproximadamente 0,606 e ROC-AUC de 0,838 no conjunto de teste.
+
+Com o limiar escolhido para aproximadamente 75% de recall, a execução registrada sinalizou 29,9% dos clientes do conjunto de teste e identificou corretamente 55,5% do saldo associado aos clientes que efetivamente cancelaram.
+
+Os resultados devem ser interpretados dentro das limitações da base pública. Antes de uma aplicação real, seria necessário validar a disponibilidade temporal das variáveis no momento da previsão, utilizar dados históricos reais da instituição e incorporar informações como motivo de cancelamento e satisfação do cliente, se disponíveis.
 
 ## Dashboard
 
