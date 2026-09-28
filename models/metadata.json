@@ -1,5 +1,5 @@
 {
-  "limiar_negocio": 0.3199999928474426,
+  "limiar_negocio": 0.26499998569488525,
   "num_cols": [
     "vintage",
     "age",
@@ -24,18 +24,18 @@
     "customer_nw_category"
   ],
   "hiperparametros": {
-    "model__subsample": 0.6,
-    "model__n_estimators": 300,
+    "model__subsample": 0.8,
+    "model__n_estimators": 800,
     "model__min_child_weight": 5,
     "model__max_depth": 8,
-    "model__learning_rate": 0.05,
-    "model__gamma": 0.1,
+    "model__learning_rate": 0.03,
+    "model__gamma": 0,
     "model__colsample_bytree": 0.6
   },
   "metricas_teste": {
-    "recall": 0.75,
-    "precision": 0.4643908181283108,
-    "f1": 0.5736095965103599,
-    "roc_auc": 0.8384127016750591
+    "recall": 0.7490494296577946,
+    "precision": 0.4568115942028986,
+    "f1": 0.5675189052934821,
+    "roc_auc": 0.8361370876580001
   }
 }

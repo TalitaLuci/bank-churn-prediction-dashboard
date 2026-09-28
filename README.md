@@ -5,7 +5,7 @@ Modelo preditivo e dashboard interativo para identificar clientes de um banco co
 [![Python](https://img.shields.io/badge/Python-3.11+-blue)]()
 [![Streamlit](https://img.shields.io/badge/Streamlit-App-red)]()
 [![XGBoost](https://img.shields.io/badge/XGBoost-Model-green)]()
-[![License](https://img.shields.io/badge/License-MIT-lightgrey)]()
+[![License](https://img.shields.io/badge/License-MIT-lightgrey)](./LICENSE)
 
 🔗 **[Acesse o dashboard ao vivo](https://bank-churn-prediction-dashboard-2azfey4fpwgbqutgvc8hx8.streamlit.app)**
 
@@ -23,6 +23,7 @@ Modelo preditivo e dashboard interativo para identificar clientes de um banco co
 - [Conclusões](#-conclusões)
 - [Dashboard](#-dashboard)
 - [Como executar](#-como-executar)
+- [Testes](#-testes)
 - [Estrutura do projeto](#-estrutura-do-projeto)
 - [Tecnologias](#-tecnologias)
 - [Autora](#-autora)
@@ -62,6 +63,8 @@ bank-churn-prediction-dashboard/
 ├── assets/
 │   ├── tela-inicial.png
 │   ├── eda.png
+│   ├── queda_saldo_boxplot.png
+│   ├── roc_curve.png
 │   └── simulador-churn.png
 ├── data/
 │   ├── raw/                    # Dataset original (nunca editado)
@@ -75,7 +78,12 @@ bank-churn-prediction-dashboard/
 │   └── metadata.json               # Limiar de decisão e métricas do modelo
 ├── src/
 │   └── app.py                      # Dashboard Streamlit (Análise + Simulador)
-├── requirements.txt
+├── tests/
+│   ├── test_data.py                # Valida integridade do dataset tratado
+│   └── test_model.py               # Valida o modelo salvo e o pipeline de predição
+├── requirements.txt                 # Dependências para rodar o dashboard
+├── requirements-dev.txt              # + dependências para rodar os testes
+├── LICENSE
 └── README.md
 ```
 
@@ -117,9 +125,13 @@ Detalhado em `03_modelagem.ipynb`. Três modelos foram comparados com parâmetro
 |Random Forest|0,432|0,722|0,540|0,849|
 |XGBoost|0,568|0,621|0,594|0,815|
 
-**Critério de seleção:** o XGBoost apresentou o maior F1-Score entre os três modelos, combinando recall e precision. O Random Forest apresentou ROC-AUC superior, mas recall menor. Como o objetivo do projeto é identificar clientes em risco mantendo equilíbrio entre encontrar churners e limitar falsos positivos, o F1-Score foi adotado como principal critério para a escolha inicial.
+**Critério de seleção:** o XGBoost apresentou o maior F1-Score entre os três modelos, combinando recall e precision. O Random Forest apresentou ROC-AUC superior, mas recall bem menor (0,432) — nesse ponto de operação, ele deixaria passar mais da metade dos clientes que realmente cancelam, o que tem custo alto para o objetivo de retenção. Como o produto final é uma decisão binária (contatar ou não) e não um ranking, o F1-Score — que penaliza esse recall baixo — foi adotado como principal critério, em vez do ROC-AUC isolado.
 
 O XGBoost foi então otimizado com `RandomizedSearchCV` usando **5-fold cross-validation**. No conjunto de teste, o modelo tunado atingiu aproximadamente **F1-Score 0,606** e **ROC-AUC 0,838**.
+
+![Curva ROC comparando Logistic Regression, Random Forest, XGBoost padrão e XGBoost tunado](./assets/roc_curve.png)
+
+A curva ROC evidencia visualmente o que a tabela acima já mostrava: o Random Forest tem a maior área sob a curva isoladamente, mas o XGBoost tunado (linha tracejada) acompanha de perto a maior parte da curva e supera o XGBoost padrão em praticamente todos os limiares — sustentando a escolha do XGBoost como modelo final, já que ele concilia essa capacidade discriminativa com o melhor equilíbrio entre recall e precisão (F1-Score).
 
 > **Prevenção de data leakage:** `queda_saldo` é calculada como `average_monthly_balance_prevQ - current_balance`. Neste projeto, ela é tratada como informação disponível antes do evento de churn. Como a documentação pública da base não descreve completamente a janela temporal de cada variável, essa premissa deve ser validada com a definição original dos dados antes de uma aplicação real.
 
@@ -161,7 +173,17 @@ streamlit run src/app.py
 
 O dashboard abre automaticamente em `http://localhost:8501`.
 
+## 🧪 Testes
 
+O projeto inclui testes automatizados (`pytest`) que validam a integridade do dataset tratado e a sanidade do modelo salvo — garantindo que o pipeline continua reproduzível após qualquer alteração nos notebooks.
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/
+```
+
+* `tests/test_data.py`: confere que o dataset tratado tem as colunas esperadas, sem duplicatas de cliente, sem valores ausentes nas colunas críticas e com taxa de churn dentro do intervalo esperado.
+* `tests/test_model.py`: confere que o modelo salvo carrega corretamente, que o `metadata.json` traz limiar e métricas, e que a predição é determinística e retorna uma probabilidade válida (entre 0 e 1).
 
 ## Observações
 
